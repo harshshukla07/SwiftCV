@@ -1,0 +1,8 @@
+node_modules
+dist
+build
+.vite
+*.log
+coverage
+.env
+.DS_Store
