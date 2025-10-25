@@ -59,7 +59,8 @@ const Testimonial = () => {
         </div>
       </div>
       <p className="text-sm py-4 text-gray-800">
-        Radiant made undercutting all of our competitors an absolute breeze.
+        Best resume builder I have ever used! The templates are modern and
+        easy to customize. I landed my dream job thanks to this tool.
       </p>
     </div>
   )
