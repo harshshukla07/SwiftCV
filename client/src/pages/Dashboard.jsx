@@ -9,12 +9,10 @@ import {
   XIcon,
 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { dummyResumeData } from '../assets/assets'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import API from '../configs/api.js'
 import toast from 'react-hot-toast'
-import axios from 'axios'
 import pdfToText from 'react-pdftotext'
 
 const Dashboard = () => {

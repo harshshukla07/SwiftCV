@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { data, Link, useParams } from 'react-router-dom'
-import { dummyResumeData } from '../assets/assets'
 import {
   ArrowLeftIcon,
   Briefcase,
