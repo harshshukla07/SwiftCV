@@ -14,18 +14,31 @@ const PORT = process.env.PORT || 3000;
 await connectDB();
 
 app.use(express.json());
-app.use(cors());
 
-app.get('/',(req,res)=>{
+// Dynamic CORS configuration
+const allowedOrigins = [
+    'http://localhost:5173', // Vite dev server
+    'https://localhost:4173', // Vite preview
+    process.env.FRONTEND_URL || 'https://*.vercel.app' // Production frontend URL
+];
+
+app.use(cors({
+    origin: allowedOrigins,
+    credentials: true
+}));
+
+app.get('/', (req, res) =>
+{
     res.send('Server is running');
 })
 
-app.use('/api/users',userRouter);
+app.use('/api/users', userRouter);
 
-app.use('/api/resumes',resumeRouter);
+app.use('/api/resumes', resumeRouter);
 
-app.use('/api/ai',aiRouter);
+app.use('/api/ai', aiRouter);
 
-app.listen(PORT, ()=>{
+app.listen(PORT, () =>
+{
     console.log(`Server is running on port ${PORT}`);
 });
