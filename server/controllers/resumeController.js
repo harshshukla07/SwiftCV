@@ -75,16 +75,20 @@ export const getResumeById = async (req, res) =>
 // get resume by ID public
 // GET: /api/resumes/public
 
-export const getPublicResumeById = async (req, res) => {
-    try {
+export const getPublicResumeById = async (req, res) =>
+{
+    try
+    {
         const { resumeId } = req.params;
-        const resume = await Resume.findOne({ _id: resumeId, isPublic: true });
-        if (!resume) {
+        const resume = await Resume.findOne({ _id: resumeId, public: true });
+        if (!resume)
+        {
             return res.status(404).json({ message: "Resume not found or is not public" });
         }
 
         return res.status(200).json({ resume });
-    } catch (error) {
+    } catch (error)
+    {
         return res.status(500).json({ message: error.message });
     }
 };
@@ -92,23 +96,34 @@ export const getPublicResumeById = async (req, res) => {
 // controller for updating resume
 // PUT: /api/resumes/update
 
-export const updateResume = async (req, res) =>{
-    try {
+export const updateResume = async (req, res) =>
+{
+    try
+    {
         const userId = req.userId;
-        
+
         const { resumeId, resumeData, removeBackground } = req.body;
 
         const image = req.file;
-        let resumeDataCopy = JSON.parse(resumeData);
+        let resumeDataCopy;
 
-        if (image) {
+        if (typeof resumeData === 'string')
+        {
+            resumeDataCopy = JSON.parse(resumeData);
+        } else
+        {
+            resumeDataCopy = structuredClone(resumeData);
+        }
+
+        if (image)
+        {
             const imageBufferData = fs.createReadStream(image.path);
             const response = await imagekit.files.upload({
                 file: imageBufferData,
                 fileName: 'resume.png',
                 folder: 'user-resumes',
                 transformation: {
-                    pre: 'w-300, h-300,fo-face,z-0.75' + (removeBackground ? ',e-bgremove': '')
+                    pre: 'w-300, h-300,fo-face,z-0.75' + (removeBackground ? ',e-bgremove' : '')
                 }
             });
 
@@ -123,7 +138,8 @@ export const updateResume = async (req, res) =>{
         );
         return res.status(200).json({ message: "Resume updated successfully", resume });
 
-    } catch (error) {
+    } catch (error)
+    {
         return res.status(500).json({ message: error.message });
     }
 }

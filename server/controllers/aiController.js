@@ -102,7 +102,24 @@ export const uploadResume = async (req, res) =>
         // Enhanced input validation
         if (!resumeText || !title || !userId)
         {
-            return res.status(400).json({ message: "All fields are required" });
+            const missingFields = [];
+            if (!resumeText) missingFields.push('resumeText');
+            if (!title) missingFields.push('title');
+            if (!userId) missingFields.push('userId');
+
+            return res.status(400).json({
+                message: `Missing required fields: ${missingFields.join(', ')}`
+            });
+        }
+
+        if (title.trim().length === 0)
+        {
+            return res.status(400).json({ message: "Title cannot be empty" });
+        }
+
+        if (resumeText.trim().length === 0)
+        {
+            return res.status(400).json({ message: "Resume text cannot be empty" });
         }
 
         // Check for OpenAI model configuration
@@ -183,36 +200,76 @@ If any field has no corresponding information in the resume, use empty string ""
 Resume Text:
 ${resumeText}
 
-Return the extracted data in the specified JSON format with all available information populated.`
+Return the extracted data in the specified JSON format with all available information populated. 
 
-        const response = await ai.chat.completions.create({
-            model: process.env.OPENAI_MODEL,
-            messages: [
-                {
-                    role: "system",
-                    content: systemPrompt
-                },
-                {
-                    role: "user",
-                    content: userPrompt
-                },
-            ],
-            response_format: { type: "json" }
-        })
+IMPORTANT: Your response must be ONLY valid JSON, no additional text or explanations before or after the JSON.`
+
+        let response;
+        try
+        {
+            response = await ai.chat.completions.create({
+                model: process.env.OPENAI_MODEL,
+                messages: [
+                    {
+                        role: "system",
+                        content: systemPrompt
+                    },
+                    {
+                        role: "user",
+                        content: userPrompt
+                    },
+                ]
+            });
+        } catch (aiError)
+        {
+            console.error('Gemini API Error:', aiError.message);
+
+            // Check if it's a quota/billing error
+            if (aiError.message.includes('quota') || aiError.message.includes('billing'))
+            {
+                return res.status(402).json({
+                    message: "AI service quota exceeded. Please check your Gemini API billing settings."
+                });
+            }
+
+            // Check if it's an authentication error
+            if (aiError.message.includes('401') || aiError.message.includes('authentication'))
+            {
+                return res.status(401).json({
+                    message: "AI service authentication failed. Please check your API key."
+                });
+            }
+
+            // Generic AI service error
+            return res.status(503).json({
+                message: "AI service temporarily unavailable. Please try again later.",
+                error: aiError.message
+            });
+        }
 
         // Parse JSON response with error handling
         let extractedData;
         try
         {
-            extractedData = JSON.parse(response.choices[0].message.content);
+            let responseContent = response.choices[0].message.content.trim();
+
+            // Remove markdown code block formatting if present
+            if (responseContent.startsWith('```json'))
+            {
+                responseContent = responseContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+            } else if (responseContent.startsWith('```'))
+            {
+                responseContent = responseContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
+            }
+
+            extractedData = JSON.parse(responseContent);
         } catch (parseError)
         {
             console.error("JSON parsing error:", parseError.message);
-            console.error("Raw AI response length:", response.choices[0].message.content.length);
-            console.error("Response preview:", response.choices[0].message.content.substring(0, 200) + "...");
             return res.status(500).json({
-                message: "Failed to parse AI response",
-                error: parseError.message
+                message: "Failed to parse AI response - response may not be valid JSON",
+                error: parseError.message,
+                rawResponse: response.choices[0].message.content.substring(0, 500)
             });
         }
 
@@ -248,10 +305,11 @@ Return the extracted data in the specified JSON format with all available inform
 
         return res.status(201).json({
             message: "Resume uploaded and processed successfully",
-            resumeId: newResume._id
+            resume: newResume
         });
     } catch (error)
     {
+        console.error('Upload resume error:', error.message);
         return res.status(400).json({ message: error.message });
 
     }
