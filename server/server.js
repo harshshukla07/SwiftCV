@@ -19,8 +19,9 @@ app.use(express.json());
 const allowedOrigins = [
     'http://localhost:5173', // Vite dev server
     'https://localhost:4173', // Vite preview
-    process.env.FRONTEND_URL || 'https://*.vercel.app' // Production frontend URL
-];
+    'https://swift-cv-pi.vercel.app', // Production frontend URL
+    process.env.FRONTEND_URL // Additional frontend URL from env
+].filter(Boolean); // Remove undefined values
 
 app.use(cors({
     origin: allowedOrigins,
