@@ -90,7 +90,7 @@ export const getUserById = async (req, res) =>
 {
     try
     {
-        const { userId } = req.userId;
+        const userId = req.userId;
 
         const user = await User.findById(userId);
         if (!user)
