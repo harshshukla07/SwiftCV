@@ -1,8 +1,18 @@
-# 🚀 SwiftCV - AI-Powered Resume Builder
-
 <div align="center">
 
-![SwiftCV Logo](https://img.shields.io/badge/SwiftCV-Resume%20Builder-blue?style=for-the-badge&logo=react)
+<!-- App Logo -->
+<img src="./assets/swiftcv-logo.svg" alt="SwiftCV Logo" width="200" height="200">
+
+# 🚀 SwiftCV
+### AI-Powered Resume Builder
+
+<p align="center">
+  <em>Create stunning, professional resumes with the power of AI</em>
+</p>
+
+![SwiftCV Badge](https://img.shields.io/badge/SwiftCV-Resume%20Builder-blue?style=for-the-badge&logo=react)
+![Version](https://img.shields.io/badge/version-1.0.0-brightgreen?style=for-the-badge)
+![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-swift--cv--pi.vercel.app-green?style=for-the-badge&logo=vercel)](https://swift-cv-pi.vercel.app)
 [![Backend API](https://img.shields.io/badge/Backend%20API-swiftcv--hcog.onrender.com-orange?style=for-the-badge&logo=node.js)](https://swiftcv-hcog.onrender.com)
