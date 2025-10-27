@@ -142,4 +142,73 @@ export const updateResume = async (req, res) =>
     {
         return res.status(500).json({ message: error.message });
     }
-}
+};
+
+// controller for duplicating a resume
+// POST: /api/resumes/duplicate
+
+export const duplicateResume = async (req, res) =>
+{
+    try
+    {
+        const userId = req.userId;
+        const { resumeId } = req.body;  
+
+        
+        const originalResume = await Resume.findOne({ userId, _id: resumeId });
+        if (!originalResume)
+        {
+            return res.status(404).json({ message: "Resume not found" });
+        }
+
+        
+        const resumeData = originalResume.toObject();
+        delete resumeData._id;
+        delete resumeData.createdAt;
+        delete resumeData.updatedAt;
+        delete resumeData.__v;
+
+        let newTitle;
+        let counter = 1;
+        const originalTitle = originalResume.title;
+
+        if (originalTitle.includes('(Copy'))
+        {
+            const match = originalTitle.match(/^(.+) \(Copy( \d+)?\)$/);
+            newTitle = match ? `${match[1]} (Copy)` : `${originalTitle} (Copy)`;
+        } else
+        {
+            newTitle = `${originalTitle} (Copy)`;
+        }
+
+        while (true)
+        {
+            const existingResume = await Resume.findOne({ userId, title: newTitle });
+            if (!existingResume)
+            {
+                break; 
+            }
+
+            counter++;
+            const baseName = originalTitle.includes('(Copy')
+                ? originalTitle.match(/^(.+) \(Copy/)[1]
+                : originalTitle;
+            newTitle = `${baseName} (Copy ${counter})`;
+        }
+
+        resumeData.title = newTitle;
+
+        const duplicatedResume = await Resume.create(resumeData);
+
+        return res.status(201).json({
+            message: "Resume duplicated successfully",
+            resume: duplicatedResume
+        });
+
+    } catch (error)
+    {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+
