@@ -9,7 +9,7 @@ import {
   XIcon,
   Copy,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import API from '../configs/api.js'
