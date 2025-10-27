@@ -7,6 +7,7 @@ import {
   UploadCloud,
   UploadCloudIcon,
   XIcon,
+  Copy,
 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -148,6 +149,26 @@ const Dashboard = () => {
     }
   }
 
+  const duplicateResume = async resumeId => {
+    try {
+      const { data } = await API.post(
+        '/api/resumes/duplicate',
+        { resumeId },
+        {
+          headers: { Authorization: token },
+        }
+      )
+
+      setAllResumes([...allResumes, data.resume])
+
+      toast.success(data.message)
+
+      navigate(`/app/builder/${data.resume._id}`)
+    } catch (error) {
+      toast.error(error?.response?.data?.message || error.message)
+    }
+  }
+
   useEffect(() => {
     loadAllResumes()
   }, [])
@@ -213,6 +234,10 @@ const Dashboard = () => {
                 >
                   <TrashIcon
                     onClick={() => deleteResume(resume._id)}
+                    className="size-7 p-1.5 hover:bg-white/50 rounded text-slate-700 transition-colors"
+                  />
+                  <Copy
+                    onClick={() => duplicateResume(resume._id)}
                     className="size-7 p-1.5 hover:bg-white/50 rounded text-slate-700 transition-colors"
                   />
                   <PencilIcon
