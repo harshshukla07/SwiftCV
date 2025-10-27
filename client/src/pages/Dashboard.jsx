@@ -15,6 +15,7 @@ import { useSelector } from 'react-redux'
 import API from '../configs/api.js'
 import toast from 'react-hot-toast'
 import pdfToText from 'react-pdftotext'
+import ResumePreview from '../components/ResumePreview'
 
 const Dashboard = () => {
   const { user, token } = useSelector(state => state.auth)
@@ -27,6 +28,7 @@ const Dashboard = () => {
   const [resume, setResume] = useState(null)
   const [editResumeId, setEditResumeId] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [hoveredResume, setHoveredResume] = useState({ id: null, data: null })
 
   const navigate = useNavigate()
 
@@ -169,6 +171,21 @@ const Dashboard = () => {
     }
   }
 
+  const handleHover = async resumeId => {
+    if (hoveredResume.id !== resumeId) {
+      setHoveredResume({ id: resumeId, data: null })
+      try {
+        const { data } = await API.get(`/api/resumes/get/${resumeId}`, {
+          headers: { Authorization: token },
+        })
+        setHoveredResume({ id: resumeId, data: data.resume })
+      } catch (error) {
+        console.error('Failed to fetch resume for preview', error)
+        setHoveredResume({ id: null, data: null })
+      }
+    }
+  }
+
   useEffect(() => {
     loadAllResumes()
   }, [])
@@ -208,6 +225,8 @@ const Dashboard = () => {
             return (
               <button
                 key={index}
+                onMouseEnter={() => handleHover(resume._id)}
+                onMouseLeave={() => setHoveredResume({ id: null, data: null })}
                 onClick={() => navigate(`/app/builder/${resume._id}`)}
                 className="relative w-full sm:max-w-36 h-48 flex flex-col items-center justify-center rounded-lg gap-2 border group hover:shadow-lg transition-all duration-300 cursor-pointer"
                 style={{
@@ -248,6 +267,28 @@ const Dashboard = () => {
                     className="size-7 p-1.5 hover:bg-white/50 rounded text-slate-700 transition-colors"
                   />
                 </div>
+                {hoveredResume.id === resume._id && hoveredResume.data && (
+                  <div
+                    className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-white border border-gray-300 rounded-lg shadow-2xl z-50 overflow-hidden"
+                    style={{ width: '340px', height: '220px' }}
+                  >
+                    <div
+                      style={{
+                        transform: 'scale(0.4)',
+                        transformOrigin: 'top left',
+                        width: '250%',
+                        imageRendering: 'auto',
+                        WebkitFontSmoothing: 'antialiased',
+                      }}
+                    >
+                      <ResumePreview
+                        data={hoveredResume.data}
+                        template={hoveredResume.data.template}
+                        accentColor={hoveredResume.data.accent_color}
+                      />
+                    </div>
+                  </div>
+                )}
               </button>
             )
           })}

@@ -58,9 +58,11 @@
 ### 📱 **Modern User Experience**
 - **Responsive Design** - Works seamlessly on all devices
 - **Real-time Preview** - Live resume preview while editing
+- **Hover Preview** - Quick resume preview on dashboard hover
 - **Drag & Drop** - Easy file uploads
 - **Public Sharing** - Share resumes with unique URLs
 - **Download Options** - Export as PDF or share online
+- **Resume Duplication** - Smart copy with automatic naming
 
 ## 🛠️ Tech Stack
 
