@@ -29,6 +29,7 @@ const Dashboard = () => {
   const [editResumeId, setEditResumeId] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [hoveredResume, setHoveredResume] = useState({ id: null, data: null })
+  const [resumeCache, setResumeCache] = useState({}) 
 
   const navigate = useNavigate()
 
@@ -173,11 +174,19 @@ const Dashboard = () => {
 
   const handleHover = async resumeId => {
     if (hoveredResume.id !== resumeId) {
+      
+      if (resumeCache[resumeId]) {
+        setHoveredResume({ id: resumeId, data: resumeCache[resumeId] })
+        return
+      }
+
       setHoveredResume({ id: resumeId, data: null })
       try {
         const { data } = await API.get(`/api/resumes/get/${resumeId}`, {
           headers: { Authorization: token },
         })
+
+        setResumeCache(prev => ({ ...prev, [resumeId]: data.resume }))
         setHoveredResume({ id: resumeId, data: data.resume })
       } catch (error) {
         console.error('Failed to fetch resume for preview', error)
